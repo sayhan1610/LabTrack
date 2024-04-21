@@ -1,11 +1,33 @@
 import requests
 
-# These requests will result in an error, since price and count are negative:
-print(requests.put("http://127.0.0.1:8000/update/0?count=-1").json())
-print(requests.put("http://127.0.0.1:8000/update/0?price=-1").json())
+"""
+# Add a new item
+print(requests.post("http://127.0.0.1:8000/", json={
+  "name": "Mehthanol",
+  "shelf": 3,
+  "lab": "chemistry",
+  "count": 10,
+  "category": "equipment",
+  "expiration_date": "04.21.2027"
+}).json())
+"""
+# Get all items
+print(requests.get("http://127.0.0.1:8000/items/?name=beaker").json())
 
-# Similarly, an item_id must not be negative:
-print(requests.put("http://127.0.0.1:8000/update/-1").json())
-
-# And name cannot exceed 8 characters:
-print(requests.put("http://127.0.0.1:8000/update/0?name=SuperDuperHammer").json())
+"""
+# Delete an item
+delete_id="6624e04a00244f181a536b25"
+print(requests.delete(f"http://127.0.0.1:8000/{delete_id}").json())
+"""
+"""
+# Update an item
+update_id="6624e24000244f181a536b27"
+print(requests.put(f"http://127.0.0.1:8000/{update_id}", json={
+  "name": "Beaker",
+  "shelf": 5,
+  "lab": "Physics",
+  "count": 1,
+  "category": "equipment",
+  "expiration_date": "04.21.2024"
+}).json())
+"""

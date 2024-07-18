@@ -10,11 +10,12 @@ import uvicorn
 app = FastAPI()
 
 # CORS (Cross-Origin Resource Sharing) middleware configuration 
+origins = ["*"]  # Update with your frontend domain or "*" for all origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins, modify this based on your requirements
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Add DELETE method here
     allow_headers=["*"],
 )
 
@@ -31,14 +32,14 @@ class Equipment(BaseModel):
     count: int
     type: str
     danger_factor: int
-    expiry_date: Optional[str]  # Now it's a simple string
+    expiry_date: Optional[str] 
 
 class UpdateEquipment(BaseModel):
     name: Optional[str]
     count: Optional[int]
     type: Optional[str]
     danger_factor: Optional[int]
-    expiry_date: Optional[str]  # Now it's a simple string
+    expiry_date: Optional[str] 
 
 class EquipmentResponse(Equipment):
     id: str

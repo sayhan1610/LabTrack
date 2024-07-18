@@ -40,6 +40,62 @@
     <h2>Equipment List</h2>
     <ul id="equipmentList"></ul>
 
+    <hr />
+
+    <!-- Form for bulk add -->
+    <h2>Bulk Add Equipment</h2>
+    <form id="bulkAddForm">
+      <label for="bulkData">Bulk Data (JSON Array):</label><br />
+      <textarea
+        id="bulkData"
+        name="bulkData"
+        rows="4"
+        cols="50"
+        required
+      ></textarea
+      ><br /><br />
+      <button type="submit">Bulk Add Equipment</button>
+    </form>
+
+    <hr />
+
+    <!-- Form for bulk delete -->
+    <h2>Bulk Delete Equipment</h2>
+    <form id="bulkDeleteForm">
+      <label for="deleteIds">Equipment IDs (comma-separated):</label><br />
+      <input type="text" id="deleteIds" name="deleteIds" required /><br /><br />
+      <button type="submit">Bulk Delete Equipment</button>
+    </form>
+
+    <hr />
+
+    <!-- Form for editing equipment -->
+    <h2>Edit Equipment</h2>
+    <form id="editForm">
+      <input type="hidden" id="editId" name="id" />
+      <label for="editName">Name:</label>
+      <input type="text" id="editName" name="name" required /><br /><br />
+
+      <label for="editCount">Count:</label>
+      <input type="number" id="editCount" name="count" required /><br /><br />
+
+      <label for="editType">Type:</label>
+      <input type="text" id="editType" name="type" required /><br /><br />
+
+      <label for="editDangerFactor">Danger Factor:</label>
+      <input
+        type="number"
+        id="editDangerFactor"
+        name="danger_factor"
+        required
+      /><br /><br />
+
+      <label for="editExpiryDate">Expiry Date:</label>
+      <input type="text" id="editExpiryDate" name="expiry_date" /><br /><br />
+
+      <button type="submit">Update Equipment</button>
+    </form>
+
     <script>
       // Function to fetch and display equipment list
       async function fetchEquipments() {
@@ -52,7 +108,19 @@
 
           equipments.forEach((equipment) => {
             const listItem = document.createElement("li");
-            listItem.textContent = `${equipment.name} - ${equipment.type} (Count: ${equipment.count})`;
+            listItem.textContent = `ID: ${equipment.id} - ${equipment.name} - ${equipment.type} (Count: ${equipment.count})`;
+
+            // Add buttons for edit and delete
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.onclick = () => showEditForm(equipment);
+            listItem.appendChild(editButton);
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = () => deleteEquipment(equipment.id);
+            listItem.appendChild(deleteButton);
+
             equipmentList.appendChild(listItem);
           });
         } catch (error) {
@@ -91,6 +159,141 @@
             console.error("Error adding equipment:", error);
           }
         });
+
+      // Function to handle form submission for bulk adding equipment
+      document
+        .getElementById("bulkAddForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const bulkData = document.getElementById("bulkData").value.trim();
+          if (!bulkData) {
+            alert("Please enter valid JSON data.");
+            return;
+          }
+
+          try {
+            const response = await fetch("http://127.0.0.1:8000/bulk_add", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: bulkData,
+            });
+
+            if (response.ok) {
+              await fetchEquipments();
+              document.getElementById("bulkData").value = ""; // Clear the input after successful bulk add
+            } else {
+              alert("Failed to bulk add equipment");
+            }
+          } catch (error) {
+            console.error("Error bulk adding equipment:", error);
+          }
+        });
+
+      // Function to handle form submission for bulk deleting equipment
+      document
+        .getElementById("bulkDeleteForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const deleteIds = document.getElementById("deleteIds").value.trim();
+          if (!deleteIds) {
+            alert("Please enter equipment IDs to delete.");
+            return;
+          }
+
+          try {
+            const response = await fetch("http://127.0.0.1:8000/bulk_remove", {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(deleteIds.split(",").map((id) => id.trim())),
+            });
+
+            if (response.ok) {
+              await fetchEquipments();
+              document.getElementById("deleteIds").value = ""; // Clear the input after successful bulk delete
+            } else {
+              alert("Failed to bulk delete equipment");
+            }
+          } catch (error) {
+            console.error("Error bulk deleting equipment:", error);
+          }
+        });
+
+      // Function to show edit form with pre-filled data
+      function showEditForm(equipment) {
+        document.getElementById("editId").value = equipment.id;
+        document.getElementById("editName").value = equipment.name;
+        document.getElementById("editCount").value = equipment.count;
+        document.getElementById("editType").value = equipment.type;
+        document.getElementById("editDangerFactor").value =
+          equipment.danger_factor;
+        document.getElementById("editExpiryDate").value =
+          equipment.expiry_date || "";
+
+        // Show the edit form
+        document.getElementById("editForm").style.display = "block";
+      }
+
+      // Function to handle form submission for editing equipment
+      document
+        .getElementById("editForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault();
+
+          const formData = new FormData(this);
+          const requestData = {};
+          formData.forEach((value, key) => {
+            requestData[key] = value;
+          });
+
+          try {
+            const id = document.getElementById("editId").value;
+            const response = await fetch(
+              `http://127.0.0.1:8000/equipment/${id}`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestData),
+              }
+            );
+
+            if (response.ok) {
+              await fetchEquipments();
+              document.getElementById("editForm").style.display = "none"; // Hide the edit form after successful update
+            } else {
+              alert("Failed to update equipment");
+            }
+          } catch (error) {
+            console.error("Error updating equipment:", error);
+          }
+        });
+
+      // Function to handle deleting equipment
+      async function deleteEquipment(id) {
+        try {
+          const response = await fetch(
+            `http://127.0.0.1:8000/equipment/${id}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          if (response.ok) {
+            await fetchEquipments();
+          } else {
+            alert(`Failed to delete equipment with ID: ${id}`);
+          }
+        } catch (error) {
+          console.error("Error deleting equipment:", error);
+        }
+      }
 
       // Initial fetch of equipment list on page load
       fetchEquipments();

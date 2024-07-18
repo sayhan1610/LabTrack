@@ -31,6 +31,17 @@
       <label for="expiry_date">Expiry Date:</label>
       <input type="text" id="expiry_date" name="expiry_date" /><br /><br />
 
+      <label for="lab">Lab:</label>
+      <input type="text" id="lab" name="lab" required /><br /><br />
+
+      <label for="shelf_number">Shelf Number:</label>
+      <input
+        type="text"
+        id="shelf_number"
+        name="shelf_number"
+        required
+      /><br /><br />
+
       <button type="submit">Add Equipment</button>
     </form>
 
@@ -93,14 +104,27 @@
       <label for="editExpiryDate">Expiry Date:</label>
       <input type="text" id="editExpiryDate" name="expiry_date" /><br /><br />
 
+      <label for="editLab">Lab:</label>
+      <input type="text" id="editLab" name="lab" required /><br /><br />
+
+      <label for="editShelfNumber">Shelf Number:</label>
+      <input
+        type="text"
+        id="editShelfNumber"
+        name="shelf_number"
+        required
+      /><br /><br />
+
       <button type="submit">Update Equipment</button>
     </form>
 
     <script>
+      const apiBaseUrl = "http://127.0.0.1:8000";
+
       // Function to fetch and display equipment list
       async function fetchEquipments() {
         try {
-          const response = await fetch("http://127.0.0.1:8000/equipments");
+          const response = await fetch(`${apiBaseUrl}/equipments`);
           const equipments = await response.json();
 
           const equipmentList = document.getElementById("equipmentList");
@@ -108,7 +132,7 @@
 
           equipments.forEach((equipment) => {
             const listItem = document.createElement("li");
-            listItem.textContent = `ID: ${equipment.id} - ${equipment.name} - ${equipment.type} (Count: ${equipment.count})`;
+            listItem.textContent = `ID: ${equipment.id} - ${equipment.name} - ${equipment.type} - ${equipment.lab} - ${equipment.shelf_number} (Count: ${equipment.count})`;
 
             // Add buttons for edit and delete
             const editButton = document.createElement("button");
@@ -141,7 +165,7 @@
           });
 
           try {
-            const response = await fetch("http://127.0.0.1:8000/equipment", {
+            const response = await fetch(`${apiBaseUrl}/equipment`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -173,7 +197,7 @@
           }
 
           try {
-            const response = await fetch("http://127.0.0.1:8000/bulk_add", {
+            const response = await fetch(`${apiBaseUrl}/bulk_add`, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -205,7 +229,7 @@
           }
 
           try {
-            const response = await fetch("http://127.0.0.1:8000/bulk_remove", {
+            const response = await fetch(`${apiBaseUrl}/bulk_remove`, {
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
@@ -234,6 +258,9 @@
           equipment.danger_factor;
         document.getElementById("editExpiryDate").value =
           equipment.expiry_date || "";
+        document.getElementById("editLab").value = equipment.lab;
+        document.getElementById("editShelfNumber").value =
+          equipment.shelf_number;
 
         // Show the edit form
         document.getElementById("editForm").style.display = "block";
@@ -253,16 +280,13 @@
 
           try {
             const id = document.getElementById("editId").value;
-            const response = await fetch(
-              `http://127.0.0.1:8000/equipment/${id}`,
-              {
-                method: "PUT",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(requestData),
-              }
-            );
+            const response = await fetch(`${apiBaseUrl}/equipment/${id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(requestData),
+            });
 
             if (response.ok) {
               await fetchEquipments();
@@ -278,12 +302,9 @@
       // Function to handle deleting equipment
       async function deleteEquipment(id) {
         try {
-          const response = await fetch(
-            `http://127.0.0.1:8000/equipment/${id}`,
-            {
-              method: "DELETE",
-            }
-          );
+          const response = await fetch(`${apiBaseUrl}/equipment/${id}`, {
+            method: "DELETE",
+          });
 
           if (response.ok) {
             await fetchEquipments();

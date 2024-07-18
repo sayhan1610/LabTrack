@@ -32,14 +32,18 @@ class Equipment(BaseModel):
     count: int
     type: str
     danger_factor: int
-    expiry_date: Optional[str] 
+    expiry_date: Optional[str]
+    lab: str  # New field
+    shelf_number: str  # New field
 
 class UpdateEquipment(BaseModel):
     name: Optional[str]
     count: Optional[int]
     type: Optional[str]
     danger_factor: Optional[int]
-    expiry_date: Optional[str] 
+    expiry_date: Optional[str]
+    lab: Optional[str]  # New field
+    shelf_number: Optional[str]  # New field
 
 class EquipmentResponse(Equipment):
     id: str
@@ -52,7 +56,9 @@ def equipment_helper(equipment) -> dict:
         "count": equipment["count"],
         "type": equipment["type"],
         "danger_factor": equipment["danger_factor"],
-        "expiry_date": equipment["expiry_date"]
+        "expiry_date": equipment["expiry_date"],
+        "lab": equipment["lab"],  # New field
+        "shelf_number": equipment["shelf_number"]  # New field
     }
 
 # Routes
@@ -100,7 +106,6 @@ async def bulk_remove(ids: List[str]):
     if result.deleted_count > 0:
         return {"message": f"{result.deleted_count} equipment(s) deleted successfully"}
     raise HTTPException(status_code=404, detail="No equipment found with the provided IDs")
-
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

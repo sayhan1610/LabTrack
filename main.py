@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # MongoDB configuration
-MONGO_DETAILS = "mongo_db_url"
+MONGO_DETAILS = "mongo_url"
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client.labtrack

@@ -5,6 +5,8 @@ from typing import List, Optional
 from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from fastapi import Query
+
 
 # FastAPI instance
 app = FastAPI()
@@ -15,7 +17,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Add DELETE method here
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -63,11 +65,39 @@ def equipment_helper(equipment) -> dict:
 
 # Routes
 @app.get("/equipments", response_description="List all equipment", response_model=List[EquipmentResponse])
-async def get_equipments():
+async def get_equipments(
+    id: Optional[str] = Query(None),
+    name: Optional[str] = Query(None),
+    count: Optional[int] = Query(None),
+    type: Optional[str] = Query(None),
+    danger_factor: Optional[int] = Query(None),
+    expiry_date: Optional[str] = Query(None),
+    lab: Optional[str] = Query(None),
+    shelf_number: Optional[str] = Query(None)
+):
+    query = {}
+    if id:
+        query["_id"] = ObjectId(id)
+    if name:
+        query["name"] = name
+    if count:
+        query["count"] = count
+    if type:
+        query["type"] = type
+    if danger_factor:
+        query["danger_factor"] = danger_factor
+    if expiry_date:
+        query["expiry_date"] = expiry_date
+    if lab:
+        query["lab"] = lab
+    if shelf_number:
+        query["shelf_number"] = shelf_number
+
     equipments = []
-    async for equipment in equipment_collection.find():
+    async for equipment in equipment_collection.find(query):
         equipments.append(equipment_helper(equipment))
     return equipments
+
 
 @app.post("/equipment", response_description="Add new equipment", response_model=EquipmentResponse)
 async def new_equipment(equipment: Equipment):

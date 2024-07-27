@@ -1,22 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="background" lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LabTrack Equipment Management</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <h1>LabTrack Equipment Management</h1>
+  <body class="body">
+    <span class="box">
+      <header>LabTrack Equipment Management</header>
+      <nav class="nav">
+        <a href="#equipmentList">Equipment List</a>
+        <a href="#searchForm">Search Equipment</a>
+        <a href="#addForm">Add New Equipment</a>
+        <a href="#bulkAddForm">Bulk Add Equipment</a>
+        <a href="#bulkDeleteForm">Bulk Delete Equipment</a>
+        <a href="#editForm">Edit Equipment</a>
+      </nav>
+    </span>
 
     <!-- Displaying equipment list -->
-    <h2>Equipment List</h2>
+    <section>
+      <h2>Equipment List</h2>
+    </section>
     <ul id="equipmentList"></ul>
 
-    <hr />
+    <br /><br />
 
     <!-- Search/filter form -->
-    <h2>Search Equipment</h2>
+    <section>
+      <h2>Search Equipment</h2>
+    </section>
     <form id="searchForm">
       <label for="searchId">ID:</label>
       <input type="text" id="searchId" name="id" /><br /><br />
@@ -53,10 +67,12 @@
       <button type="submit">Search</button>
     </form>
 
-    <hr />
+    <br /><br />
 
     <!-- Form for adding new equipment -->
-    <h2>Add New Equipment</h2>
+    <section>
+      <h2>Add New Equipment</h2>
+    </section>
     <form id="addForm">
       <label for="name">Name:</label>
       <input type="text" id="name" name="name" required /><br /><br />
@@ -92,10 +108,12 @@
       <button type="submit">Add Equipment</button>
     </form>
 
-    <hr />
+    <br /><br />
 
     <!-- Form for bulk add -->
-    <h2>Bulk Add Equipment</h2>
+    <section>
+      <h2>Bulk Add Equipment</h2>
+    </section>
     <form id="bulkAddForm">
       <label for="bulkData">Bulk Data (JSON Array):</label><br />
       <textarea
@@ -109,20 +127,24 @@
       <button type="submit">Bulk Add Equipment</button>
     </form>
 
-    <hr />
+    <br /><br />
 
     <!-- Form for bulk delete -->
-    <h2>Bulk Delete Equipment</h2>
+    <section>
+      <h2>Bulk Delete Equipment</h2>
+    </section>
     <form id="bulkDeleteForm">
       <label for="deleteIds">Equipment IDs (comma-separated):</label><br />
       <input type="text" id="deleteIds" name="deleteIds" required /><br /><br />
       <button type="submit">Bulk Delete Equipment</button>
     </form>
 
-    <hr />
+    <br /><br />
 
     <!-- Form for editing equipment -->
-    <h2>Edit Equipment</h2>
+    <section>
+      <h2>Edit Equipment</h2>
+    </section>
     <form id="editForm">
       <input type="hidden" id="editId" name="id" />
       <label for="editName">Name:</label>

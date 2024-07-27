@@ -1,9 +1,17 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f9f9f9;
   color: #333;
   margin: 0;
   padding: 20px;
+}
+
+header {
+  color: #4caf50;
+  padding: 10px 0;
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
 
 h1,
@@ -104,4 +112,126 @@ li button {
   button {
     padding: 10px;
   }
+}
+
+.background {
+  /* Basic dimensions and centering */
+
+  /* Dark mode colors and gradient */
+  background: #fff3fa; /* Fallback for browsers that don't support gradients */
+  background: linear-gradient(
+    135deg,
+    #fff3fa 25%,
+    #e5e5f7 25%,
+    #e5e5f7 50%,
+    #fff3fa 50%,
+    #fff3fa 75%,
+    #e5e5f7 75%,
+    #e5e5f7
+  );
+  background-size: 40px 40px;
+
+  /* Animation */
+  animation: move 4s linear infinite;
+}
+
+@keyframes move {
+  100% {
+    background-position: 0 0;
+  }
+  0% {
+    background-position: 40px 40px;
+  }
+}
+
+li,
+form {
+  background: linear-gradient(
+      45deg,
+      transparent 33.33%,
+      rgba(179, 140, 57, 0.1) 33.33%,
+      rgba(68, 47, 2, 0.1) 66.66%,
+      transparent 66.66%
+    ),
+    #a4a4a4;
+  background-size: 15px 15px;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  background: transparent;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(
+      45deg,
+      transparent 33.33%,
+      rgba(179, 140, 57, 0.1) 33.33%,
+      rgba(68, 47, 2, 0.1) 66.66%,
+      transparent 66.66%
+    ),
+    #27384b;
+  background-size: 15px 15px;
+  text-align: center;
+  border-radius: 10px;
+}
+
+nav a {
+  color: #ffffff;
+  padding: 14px 20px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 0 5px;
+  background: transparent;
+  font-weight: 900;
+}
+
+nav a:hover {
+  background-color: transparent; /* We want to use the border effect */
+}
+
+nav a:before,
+nav a:after {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 4px;
+  box-sizing: border-box;
+  transition: 0.3s transform linear, 0.3s height linear;
+  border-radius: 5px;
+}
+
+nav a:before {
+  left: 0;
+  bottom: 0;
+  border-bottom: 4px solid transparent;
+  border-left: 4px solid transparent;
+  transform: translateX(100%);
+}
+
+nav a:after {
+  top: 0;
+  left: 0;
+  border-top: 4px solid transparent;
+  border-right: 4px solid transparent;
+  transform: translateX(-100%);
+}
+
+nav a:hover:before {
+  border-color: #4caf50; /* Change this color to whatever you like */
+  height: 100%;
+  transform: translateX(0);
+  transition: 0.3s transform linear, 0.3s height linear 0.3s;
+}
+
+nav a:hover:after {
+  border-color: #4949c7; /* Change this color to whatever you like */
+  height: 100%;
+  transform: translateX(0);
+  transition: 0.3s transform linear, 0.3s height linear 0.5s;
 }

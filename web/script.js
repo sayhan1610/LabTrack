@@ -10,28 +10,25 @@ async function fetchEquipments(queryParams = "") {
     equipmentList.innerHTML = "";
 
     equipments.forEach((equipment) => {
-      const listItem = document.createElement("li");
-      listItem.textContent = `ID: ${equipment.id} - ${equipment.name} - ${equipment.type} - ${equipment.lab} - ${equipment.shelf_number} - ${equipment.danger_factor} - ${equipment.expiry_date} (Count: ${equipment.count})`;
+      const row = document.createElement("tr");
 
-      // Add a checkbox for bulk delete
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = equipment.id;
-      checkbox.onchange = updateBulkDelete;
-      listItem.appendChild(checkbox);
+      row.innerHTML = `
+        <td>${equipment.id}</td>
+        <td>${equipment.name}</td>
+        <td>${equipment.type}</td>
+        <td>${equipment.lab}</td>
+        <td>${equipment.shelf_number}</td>
+        <td>${equipment.danger_factor}</td>
+        <td>${equipment.expiry_date}</td>
+        <td>${equipment.count}</td>
+        <td>
+          <input type="checkbox" value="${equipment.id}" onchange="updateBulkDelete()" />
+          <button onclick="showEditForm(${JSON.stringify(equipment)})">Edit</button>
+          <button onclick="deleteEquipment(${equipment.id})">Delete</button>
+        </td>
+      `;
 
-      // Add buttons for edit and delete
-      const editButton = document.createElement("button");
-      editButton.textContent = "Edit";
-      editButton.onclick = () => showEditForm(equipment);
-      listItem.appendChild(editButton);
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.onclick = () => deleteEquipment(equipment.id);
-      listItem.appendChild(deleteButton);
-
-      equipmentList.appendChild(listItem);
+      equipmentList.appendChild(row);
     });
   } catch (error) {
     console.error("Error fetching equipments:", error);
@@ -68,18 +65,22 @@ document.getElementById("addForm").addEventListener("submit", async function (ev
   }
 });
 
+// Function to handle form submission for searching equipment
+document.getElementById("searchForm").addEventListener("submit", async function (event) {
+  event.preventDefault();
+
+  const queryParams = new URLSearchParams(new FormData(this)).toString();
+  await fetchEquipments(`?${queryParams}`);
+});
+
 // Function to handle form submission for bulk adding equipment
 document.getElementById("bulkAddForm").addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const bulkData = document.getElementById("bulkData").value.trim();
-  if (!bulkData) {
-    alert("Please enter valid JSON data.");
-    return;
-  }
+  const bulkData = document.getElementById("bulkData").value;
 
   try {
-    const response = await fetch(`${apiBaseUrl}/bulk_add`, {
+    const response = await fetch(`${apiBaseUrl}/equipments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -89,7 +90,7 @@ document.getElementById("bulkAddForm").addEventListener("submit", async function
 
     if (response.ok) {
       await fetchEquipments();
-      document.getElementById("bulkData").value = ""; // Clear the input after successful bulk add
+      this.reset();
     } else {
       alert("Failed to bulk add equipment");
     }
@@ -102,24 +103,20 @@ document.getElementById("bulkAddForm").addEventListener("submit", async function
 document.getElementById("bulkDeleteForm").addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const deleteIds = document.getElementById("deleteIds").value.trim();
-  if (!deleteIds) {
-    alert("Please enter equipment IDs to delete.");
-    return;
-  }
+  const deleteIds = document.getElementById("deleteIds").value.split(",").map(id => id.trim());
 
   try {
-    const response = await fetch(`${apiBaseUrl}/bulk_remove`, {
+    const response = await fetch(`${apiBaseUrl}/equipments`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(deleteIds.split(",").map((id) => id.trim())),
+      body: JSON.stringify({ ids: deleteIds }),
     });
 
     if (response.ok) {
       await fetchEquipments();
-      document.getElementById("deleteIds").value = ""; // Clear the input after successful bulk delete
+      this.reset();
     } else {
       alert("Failed to bulk delete equipment");
     }
@@ -127,23 +124,6 @@ document.getElementById("bulkDeleteForm").addEventListener("submit", async funct
     console.error("Error bulk deleting equipment:", error);
   }
 });
-
-// Function to show edit form with pre-filled data and scroll to it
-function showEditForm(equipment) {
-  document.getElementById("editId").value = equipment.id;
-  document.getElementById("editName").value = equipment.name;
-  document.getElementById("editCount").value = equipment.count;
-  document.getElementById("editType").value = equipment.type;
-  document.getElementById("editDangerFactor").value = equipment.danger_factor;
-  document.getElementById("editExpiryDate").value = equipment.expiry_date || "";
-  document.getElementById("editLab").value = equipment.lab;
-  document.getElementById("editShelfNumber").value = equipment.shelf_number;
-
-  // Show the edit form and scroll to it
-  const editForm = document.getElementById("editForm");
-  editForm.style.display = "block";
-  editForm.scrollIntoView({ behavior: "smooth" });
-}
 
 // Function to handle form submission for editing equipment
 document.getElementById("editForm").addEventListener("submit", async function (event) {
@@ -156,8 +136,7 @@ document.getElementById("editForm").addEventListener("submit", async function (e
   });
 
   try {
-    const id = document.getElementById("editId").value;
-    const response = await fetch(`${apiBaseUrl}/equipment/${id}`, {
+    const response = await fetch(`${apiBaseUrl}/equipment/${requestData.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -167,7 +146,7 @@ document.getElementById("editForm").addEventListener("submit", async function (e
 
     if (response.ok) {
       await fetchEquipments();
-      document.getElementById("editForm").style.display = "none"; // Hide the edit form after successful update
+      this.reset();
     } else {
       alert("Failed to update equipment");
     }
@@ -176,7 +155,7 @@ document.getElementById("editForm").addEventListener("submit", async function (e
   }
 });
 
-// Function to handle deleting equipment
+// Function to delete equipment
 async function deleteEquipment(id) {
   try {
     const response = await fetch(`${apiBaseUrl}/equipment/${id}`, {
@@ -186,38 +165,35 @@ async function deleteEquipment(id) {
     if (response.ok) {
       await fetchEquipments();
     } else {
-      alert(`Failed to delete equipment with ID: ${id}`);
+      alert("Failed to delete equipment");
     }
   } catch (error) {
     console.error("Error deleting equipment:", error);
   }
 }
 
-// Function to update the bulk delete IDs based on checked checkboxes
-function updateBulkDelete() {
-  const checkboxes = document.querySelectorAll("#equipmentList input[type='checkbox']");
-  const selectedIds = Array.from(checkboxes)
-    .filter((checkbox) => checkbox.checked)
-    .map((checkbox) => checkbox.value)
-    .join(",");
+// Function to show edit form with pre-filled data
+function showEditForm(equipment) {
+  const editForm = document.getElementById("editForm");
 
-  document.getElementById("deleteIds").value = selectedIds;
+  editForm.querySelector("#editId").value = equipment.id;
+  editForm.querySelector("#editName").value = equipment.name;
+  editForm.querySelector("#editCount").value = equipment.count;
+  editForm.querySelector("#editType").value = equipment.type;
+  editForm.querySelector("#editDangerFactor").value = equipment.danger_factor;
+  editForm.querySelector("#editExpiryDate").value = equipment.expiry_date;
+  editForm.querySelector("#editLab").value = equipment.lab;
+  editForm.querySelector("#editShelfNumber").value = equipment.shelf_number;
+
+  editForm.scrollIntoView({ behavior: "smooth" });
 }
 
-// Function to handle search form submission
-document.getElementById("searchForm").addEventListener("submit", function (event) {
-  event.preventDefault();
+// Function to update bulk delete input field
+function updateBulkDelete() {
+  const checkboxes = document.querySelectorAll('#equipmentList input[type="checkbox"]:checked');
+  const ids = Array.from(checkboxes).map(cb => cb.value);
+  document.getElementById("deleteIds").value = ids.join(",");
+}
 
-  const formData = new FormData(this);
-  const queryParams = new URLSearchParams();
-  formData.forEach((value, key) => {
-    if (value.trim() !== "") {
-      queryParams.append(key, value);
-    }
-  });
-
-  fetchEquipments(`?${queryParams.toString()}`);
-});
-
-// Initial fetch of equipment list on page load
+// Initial fetch of equipment list
 fetchEquipments();

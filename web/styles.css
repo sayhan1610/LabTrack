@@ -161,7 +161,7 @@ nav {
   display: flex;
   justify-content: center;
   background: transparent;
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 1000;
   background: linear-gradient(
@@ -234,4 +234,81 @@ nav a:hover:after {
   height: 100%;
   transform: translateX(0);
   transition: 0.3s transform linear, 0.3s height linear 0.5s;
+}
+.styled-table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+  background: linear-gradient(
+      45deg,
+      transparent 33.33%,
+      rgba(179, 140, 57, 0.1) 33.33%,
+      rgba(68, 47, 2, 0.1) 66.66%,
+      transparent 66.66%
+    ),
+    #a4a4a4;
+  background-size: 15px 15px;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+}
+
+th {
+  border-color: #27384b;
+  border-style: solid;
+}
+tr {
+  border-color: #27384b;
+  border-style: solid;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background: linear-gradient(
+      -45deg,
+      transparent 33.33%,
+      rgba(179, 140, 57, 0.1) 33.33%,
+      rgba(68, 47, 2, 0.1) 66.66%,
+      transparent 66.66%
+    ),
+    #f3f3f3;
+  background-size: 10px 10px;
+}
+
+.styled-table tbody tr:nth-of-type(odd) {
+  background: linear-gradient(
+      45deg,
+      transparent 33.33%,
+      rgba(179, 140, 57, 0.1) 33.33%,
+      rgba(68, 47, 2, 0.1) 66.66%,
+      transparent 66.66%
+    ),
+    #c9c9c9;
+  background-size: 10px 10px;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #27384b;
+}
+
+.styled-table tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
 }

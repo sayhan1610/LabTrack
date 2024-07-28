@@ -23,7 +23,7 @@ app.add_middleware(
 )
 
 # MongoDB configuration
-MONGO_DETAILS = "mongodb+srv://gokkusagi:Gk2017-gK@labequipments.hp1gfi4.mongodb.net/?retryWrites=true&w=majority&appName=LabEquipments"
+MONGO_DETAILS = "mongo_db_url"
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client.labtrack

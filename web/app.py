@@ -3,8 +3,8 @@ import socketserver
 import webbrowser
 import threading
 
-PORT = 8000
-URL = f"http://localhost:{PORT}"
+PORT = 5500
+URL = f"http://127.0.0.1:{PORT}"
 
 class OpenBrowser(threading.Thread):
     def run(self):

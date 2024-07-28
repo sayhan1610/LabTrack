@@ -9,6 +9,11 @@ async function fetchEquipments(queryParams = "") {
     const equipmentList = document.getElementById("equipmentList");
     equipmentList.innerHTML = "";
 
+    const expiringItems = [];
+    const today = new Date();
+    const twoWeeksFromNow = new Date();
+    twoWeeksFromNow.setDate(today.getDate() + 14);
+
     equipments.forEach((equipment) => {
       const row = document.createElement("tr");
 
@@ -29,11 +34,47 @@ async function fetchEquipments(queryParams = "") {
       `;
 
       equipmentList.appendChild(row);
+
+      const expiryDate = new Date(equipment.expiry_date);
+      if (expiryDate >= today && expiryDate <= twoWeeksFromNow) {
+        expiringItems.push(equipment);
+      }
     });
+
+    if (expiringItems.length > 0) {
+      showExpiryModal(expiringItems);
+    }
   } catch (error) {
     console.error("Error fetching equipments:", error);
   }
 }
+
+// Function to show modal with expiring items
+function showExpiryModal(expiringItems) {
+  const modal = document.getElementById("expiryModal");
+  const expiryList = document.getElementById("expiryList");
+  expiryList.innerHTML = "";
+
+  expiringItems.forEach((item) => {
+    const listItem = document.createElement("li");
+    listItem.innerText = `ID: ${item.id}, Name: ${item.name}, Expiry Date: ${item.expiry_date}`;
+    expiryList.appendChild(listItem);
+  });
+
+  modal.style.display = "block";
+
+  const closeBtn = document.getElementsByClassName("close")[0];
+  closeBtn.onclick = function () {
+    modal.style.display = "none";
+  };
+
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  };
+}
+
 
 // Function to handle form submission for adding new equipment
 document.getElementById("addForm").addEventListener("submit", async function (event) {
@@ -195,5 +236,21 @@ function updateBulkDelete() {
   document.getElementById("deleteIds").value = ids.join(",");
 }
 
+
 // Initial fetch of equipment list
 fetchEquipments();
+
+// Event listener for search form submission
+document.getElementById("searchForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  const params = new URLSearchParams();
+
+  for (const [key, value] of formData.entries()) {
+    if (value) {
+      params.append(key, value);
+    }
+  }
+
+  fetchEquipments(`?${params.toString()}`);
+});

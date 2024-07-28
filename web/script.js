@@ -17,23 +17,63 @@ async function fetchEquipments(queryParams = "") {
     equipments.forEach((equipment) => {
       const row = document.createElement("tr");
 
-      row.innerHTML = `
-        <td>${equipment.id}</td>
-        <td>${equipment.name}</td>
-        <td>${equipment.type}</td>
-        <td>${equipment.lab}</td>
-        <td>${equipment.shelf_number}</td>
-        <td>${equipment.danger_factor}</td>
-        <td>${equipment.expiry_date}</td>
-        <td>${equipment.count}</td>
-        <td>
-          <input type="checkbox" value="${equipment.id}" onchange="updateBulkDelete()" />
-          <button onclick="showEditForm(${JSON.stringify(equipment)})">Edit</button>
-          <button onclick="deleteEquipment(${equipment.id})">Delete</button>
-        </td>
-      `;
+// Create individual cell elements
+const idCell = document.createElement("td");
+idCell.textContent = equipment.id;
 
-      equipmentList.appendChild(row);
+const nameCell = document.createElement("td");
+nameCell.textContent = equipment.name;
+
+const typeCell = document.createElement("td");
+typeCell.textContent = equipment.type;
+
+const labCell = document.createElement("td");
+labCell.textContent = equipment.lab;
+
+const shelfCell = document.createElement("td");
+shelfCell.textContent = equipment.shelf_number;
+
+const dangerCell = document.createElement("td");
+dangerCell.textContent = equipment.danger_factor;
+
+const expiryCell = document.createElement("td");
+expiryCell.textContent = equipment.expiry_date;
+
+const countCell = document.createElement("td");
+countCell.textContent = equipment.count;
+
+// Create the checkbox and buttons
+const actionsCell = document.createElement("td");
+
+const checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+checkbox.value = equipment.id;
+checkbox.onchange = updateBulkDelete;
+actionsCell.appendChild(checkbox);
+
+const editButton = document.createElement("button");
+editButton.textContent = "Edit";
+editButton.onclick = () => showEditForm(equipment);
+actionsCell.appendChild(editButton);
+
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete";
+deleteButton.onclick = () => deleteEquipment(equipment.id);
+actionsCell.appendChild(deleteButton);
+
+// Append all cells to the row
+row.appendChild(idCell);
+row.appendChild(nameCell);
+row.appendChild(typeCell);
+row.appendChild(labCell);
+row.appendChild(shelfCell);
+row.appendChild(dangerCell);
+row.appendChild(expiryCell);
+row.appendChild(countCell);
+row.appendChild(actionsCell);
+
+equipmentList.appendChild(row);
+
 
       const expiryDate = new Date(equipment.expiry_date);
       if (expiryDate >= today && expiryDate <= twoWeeksFromNow) {
@@ -74,7 +114,6 @@ function showExpiryModal(expiringItems) {
     }
   };
 }
-
 
 // Function to handle form submission for adding new equipment
 document.getElementById("addForm").addEventListener("submit", async function (event) {
@@ -118,10 +157,14 @@ document.getElementById("searchForm").addEventListener("submit", async function 
 document.getElementById("bulkAddForm").addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const bulkData = document.getElementById("bulkData").value;
+  const bulkData = document.getElementById("bulkData").value.trim();
+  if (!bulkData) {
+    alert("Please enter valid JSON data.");
+    return;
+  }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/equipments`, {
+    const response = await fetch(`${apiBaseUrl}/bulk_add`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -131,7 +174,7 @@ document.getElementById("bulkAddForm").addEventListener("submit", async function
 
     if (response.ok) {
       await fetchEquipments();
-      this.reset();
+      document.getElementById("bulkData").value = ""; // Clear the input after successful bulk add
     } else {
       alert("Failed to bulk add equipment");
     }
@@ -144,20 +187,24 @@ document.getElementById("bulkAddForm").addEventListener("submit", async function
 document.getElementById("bulkDeleteForm").addEventListener("submit", async function (event) {
   event.preventDefault();
 
-  const deleteIds = document.getElementById("deleteIds").value.split(",").map(id => id.trim());
+  const deleteIds = document.getElementById("deleteIds").value.trim();
+  if (!deleteIds) {
+    alert("Please enter equipment IDs to delete.");
+    return;
+  }
 
   try {
-    const response = await fetch(`${apiBaseUrl}/equipments`, {
+    const response = await fetch(`${apiBaseUrl}/bulk_remove`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ ids: deleteIds }),
+      body: JSON.stringify(deleteIds.split(",").map((id) => id.trim())),
     });
 
     if (response.ok) {
       await fetchEquipments();
-      this.reset();
+      document.getElementById("deleteIds").value = ""; // Clear the input after successful bulk delete
     } else {
       alert("Failed to bulk delete equipment");
     }
@@ -236,21 +283,5 @@ function updateBulkDelete() {
   document.getElementById("deleteIds").value = ids.join(",");
 }
 
-
 // Initial fetch of equipment list
 fetchEquipments();
-
-// Event listener for search form submission
-document.getElementById("searchForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const params = new URLSearchParams();
-
-  for (const [key, value] of formData.entries()) {
-    if (value) {
-      params.append(key, value);
-    }
-  }
-
-  fetchEquipments(`?${params.toString()}`);
-});

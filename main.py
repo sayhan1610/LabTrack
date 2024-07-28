@@ -6,6 +6,7 @@ from bson import ObjectId
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from fastapi import Query
+from bson.errors import InvalidId
 
 
 # FastAPI instance
@@ -22,7 +23,7 @@ app.add_middleware(
 )
 
 # MongoDB configuration
-MONGO_DETAILS = "mongo_url"
+MONGO_DETAILS = "mongodb+srv://gokkusagi:Gk2017-gK@labequipments.hp1gfi4.mongodb.net/?retryWrites=true&w=majority&appName=LabEquipments"
 
 client = AsyncIOMotorClient(MONGO_DETAILS)
 database = client.labtrack
@@ -77,7 +78,10 @@ async def get_equipments(
 ):
     query = {}
     if id:
-        query["_id"] = ObjectId(id)
+        try:
+            query["_id"] = ObjectId(id)
+        except InvalidId:
+            raise HTTPException(status_code=400, detail="Invalid ID format")
     if name:
         query["name"] = name
     if count:
@@ -108,10 +112,16 @@ async def new_equipment(equipment: Equipment):
 
 @app.delete("/equipment/{id}", response_description="Delete an equipment")
 async def delete_equipment(id: str):
-    result = await equipment_collection.delete_one({"_id": ObjectId(id)})
+    try:
+        object_id = ObjectId(id)
+    except InvalidId:
+        raise HTTPException(status_code=400, detail="Invalid ID format")
+    
+    result = await equipment_collection.delete_one({"_id": object_id})
     if result.deleted_count == 1:
         return {"message": "Equipment deleted successfully"}
     raise HTTPException(status_code=404, detail=f"Equipment with ID {id} not found")
+
 
 @app.put("/equipment/{id}", response_description="Update an equipment", response_model=EquipmentResponse)
 async def update_equipment(id: str, equipment: UpdateEquipment):

@@ -1,4 +1,4 @@
-const apiBaseUrl = "http://127.0.0.1:8000";
+const apiBaseUrl = "https://labtrack.onrender.com/";
 
 // Function to fetch and display equipment list
 async function fetchEquipments(queryParams = "") {

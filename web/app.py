@@ -7,7 +7,7 @@ import sys
 import os
 
 PORT = 8000
-URL = f"http:localhost:{PORT}"
+URL = f"http://0.0.0.0:{PORT}"
 ALLOWED_FILES = {'index.html', 'script.js', 'styles.css'}
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):

@@ -4,18 +4,35 @@ import webbrowser
 import threading
 import signal
 import sys
+import os
 
-PORT = 5500
-URL = f"http://127.0.0.1:{PORT}"
+PORT = 8000
+URL = f"http:localhost:{PORT}"
+ALLOWED_FILES = {'index.html', 'script.js', 'styles.css'}
+
+class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path.lstrip('/').split('?')[0] in ALLOWED_FILES:
+            super().do_GET()
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b"404 Not Found")
 
 class OpenBrowser(threading.Thread):
     def run(self):
         webbrowser.open(URL)
 
-Handler = http.server.SimpleHTTPRequestHandler
+def scan_files():
+    print("Scanning files in the directory:")
+    for filename in ALLOWED_FILES:
+        if os.path.isfile(filename):
+            print(f"Found file: {filename}")
+        else:
+            print(f"Missing file: {filename}")
 
 def run_server():
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
         print(f"Serving at {URL}")
         try:
             httpd.serve_forever()
@@ -34,5 +51,6 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)  # Handle Ctrl+C
     signal.signal(signal.SIGTERM, signal_handler)  # Handle termination signals
 
+    scan_files()  # Scan files in the directory.
     OpenBrowser().start()  # Start the browser in a new thread.
     run_server()  # Start the server.

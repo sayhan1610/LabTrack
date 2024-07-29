@@ -1,13 +1,8 @@
 import http.server
 import socketserver
-import webbrowser
-import threading
-import signal
-import sys
 import os
 
 PORT = 8000
-URL = f"http://0.0.0.0:{PORT}"
 ALLOWED_FILES = {'index.html', 'script.js', 'styles.css'}
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -19,10 +14,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"404 Not Found")
 
-class OpenBrowser(threading.Thread):
-    def run(self):
-        webbrowser.open(URL)
-
 def scan_files():
     print("Scanning files in the directory:")
     for filename in ALLOWED_FILES:
@@ -33,7 +24,7 @@ def scan_files():
 
 def run_server():
     with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
-        print(f"Serving at {URL}")
+        print(f"Serving at port {PORT}")
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:
@@ -42,15 +33,6 @@ def run_server():
             httpd.server_close()
             print("Server closed.")
 
-def signal_handler(sig, frame):
-    print("\nSignal received, stopping server.")
-    sys.exit(0)
-
 if __name__ == "__main__":
-    # Set up signal handling for a graceful shutdown
-    signal.signal(signal.SIGINT, signal_handler)  # Handle Ctrl+C
-    signal.signal(signal.SIGTERM, signal_handler)  # Handle termination signals
-
     scan_files()  # Scan files in the directory.
-    OpenBrowser().start()  # Start the browser in a new thread.
     run_server()  # Start the server.

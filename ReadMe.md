@@ -1,5 +1,7 @@
 # LabTrack Equipment Management System
 
+[Video Demo](https://youtu.be/Ii-swCK6MTU)
+
 LabTrack is a comprehensive equipment management system designed for laboratory equipment tracking. It features functionalities for managing equipment, including adding, editing, searching, and bulk operations, as well as expiration alerts.
 
 ## Overview

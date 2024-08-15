@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "labtrack"
+version = "0.1.0"
+description = "LabTrack is a lab equipment tracking db software with separate backend and frontend made using HTML/CSS/JS/PYTHON/FASTAPI"
+authors = ["Sayhan Rahman <sayhanrahman@gokkusagi.k12.tr>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.112.0"
+motor = "^3.5.1"
+pydantic = "^2.8.2"
+uvicorn = "^0.30.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
